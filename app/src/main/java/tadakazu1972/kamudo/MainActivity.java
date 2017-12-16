@@ -48,15 +48,15 @@ public class MainActivity extends Activity implements GLSurfaceView.Renderer {
 
     protected MyChara m;
     private Model[] m_sKumako = new Model[12];
-    protected Shot[] shot = new Shot[16];
+    protected Shot[] shot = new Shot[48];
     private Model[] m_sShot = new Model[4];
     public static final int KN = 20;
     protected Enemy[] k = new Enemy[KN];
     private Model[] m_sEnemy = new Model[8];
     public int Enemy_number; //かおにゃん登場数
     private Model[] m_sSmallBaloon = new Model[4];
-    //星
-    public static final int SN = 10;
+    //爆発
+    public static final int SN = 32;
     protected Star[] s = new Star[SN];
     private Model[] sStar = new Model[7]; //7パターンの絵
     public int star_number;
@@ -113,6 +113,17 @@ public class MainActivity extends Activity implements GLSurfaceView.Renderer {
                             m.shotIndex++;
                             if (m.shotIndex>15) m.shotIndex=0;
                         }
+                        //3WAYショット可能のとき
+                        int i2 = m.shotIndex+16;
+                        if (shot[i2].visible!=1){
+                            shot[i2].visible=1;
+                            shot[i2].base_index = 0;
+                        }
+                        int i3 = m.shotIndex+32;
+                        if (shot[i3].visible!=1){
+                            shot[i3].visible=1;
+                            shot[i3].base_index = 0;
+                        }
                         //プレイヤーダメージ表現フラグOFF
                         m.damage=0;
                     }
@@ -156,9 +167,11 @@ public class MainActivity extends Activity implements GLSurfaceView.Renderer {
         //アーサー生成
         m = new MyChara();
         //ショット生成
-        for (int i=0;i<16;i++) shot[i] = new Shot(m);
+        for (int i=0;i<16;i++) shot[i] = new Shot(m, 0.0f);
+        for (int i=16;i<32;i++) shot[i] = new Shot(m, -2.0f);
+        for (int i=32;i<48;i++) shot[i] = new Shot(m, 2.0f);
         //ねこ生成
-        for (int i=0;i<KN;i++) k[i]=new Enemy(m_MAP,this);
+        for (int i=0;i<KN;i++) k[i]=new Enemy();
         //星生成
         for (int t=0;t<SN;t++) s[t]=new Star();
         //鳥生成
@@ -186,7 +199,7 @@ public class MainActivity extends Activity implements GLSurfaceView.Renderer {
         //タイマー
         mainTimer = new Timer();
         mainTimerTask = new MainTimerTask();
-        mainTimer.schedule(mainTimerTask, 150, 150);
+        mainTimer.schedule(mainTimerTask, 100, 100);
     }
 
     @Override
@@ -367,6 +380,14 @@ public class MainActivity extends Activity implements GLSurfaceView.Renderer {
                     int shotIndex = shot[i].base_index;
                     m_sShot[shotIndex].Draw(shot[i].x, shot[i].y, m_DrawDevice);
                 }
+                for (int i=16;i<32;i++) {
+                    int shotIndex = shot[i].base_index;
+                    m_sShot[shotIndex].Draw(shot[i].x, shot[i].y, m_DrawDevice);
+                }
+                for (int i=32;i<48;i++) {
+                    int shotIndex = shot[i].base_index;
+                    m_sShot[shotIndex].Draw(shot[i].x, shot[i].y, m_DrawDevice);
+                }
                 //くまちゃん
                 int index;
                 if (m.damage==0) {
@@ -401,13 +422,19 @@ public class MainActivity extends Activity implements GLSurfaceView.Renderer {
                 m.move(touch_direction, VIEW_WIDTH, VIEW_HEIGHT, m_MAP, this);
                 //ショット
                 for (int i=0;i<16;i++) {
-                    shot[i].move(m, this, m_MAP);
+                    shot[i].move(m);
+                }
+                for (int i=16;i<32;i++) {
+                    shot[i].move(m);
+                }
+                for (int i=32;i<48;i++) {
+                    shot[i].move(m);
                 }
                 //ねこ+小バルーン
                 for (int i2 = 0; i2 < Enemy_number; i2++) {
                     Enemy i = k[i2];
                     if (i.visible==1) {
-                        i.move(m, this, VIEW_WIDTH, VIEW_HEIGHT, m_MAP, s[star_counter]);
+                        i.move(m, this, s[star_counter]);
                     }
                 }
                 //星
@@ -531,64 +558,64 @@ public class MainActivity extends Activity implements GLSurfaceView.Renderer {
     }
 
     public void loadImage(){
-        m_sKumako[0].Create("kumako01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        m_sKumako[1].Create("kumako02", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        m_sKumako[2].Create("kumako03", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        m_sKumako[3].Create("kumako04", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        m_sKumako[4].Create("kumako05", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        m_sKumako[5].Create("kumako06", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        m_sKumako[6].Create("kumako07", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        m_sKumako[7].Create("kumako08", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sKumako[0].Create("fighter01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sKumako[1].Create("fighter01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sKumako[2].Create("fighter01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sKumako[3].Create("fighter01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sKumako[4].Create("fighter01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sKumako[5].Create("fighter01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sKumako[6].Create("fighter01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sKumako[7].Create("fighter01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
         m_sKumako[8].Create("kumakobanzai2", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
         m_sKumako[9].Create("kumakobanzai2", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
         m_sKumako[10].Create("kumakobanzai2", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
         m_sKumako[11].Create("kumakobanzai2", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        m_sShot[0].Create("baloon01", 0.0f, 0.0f, 0, 0, 16, 16, m_TexRes);
-        m_sShot[1].Create("baloon02", 0.0f, 0.0f, 0, 0, 16, 16, m_TexRes);
-        m_sShot[2].Create("baloon03", 0.0f, 0.0f, 0, 0, 16, 16, m_TexRes);
-        m_sShot[3].Create("baloon04", 0.0f, 0.0f, 0, 0, 16, 16, m_TexRes);
+        m_sShot[0].Create("redShot01", 0.0f, 0.0f, 0, 0, 16, 16, m_TexRes);
+        m_sShot[1].Create("redShot02", 0.0f, 0.0f, 0, 0, 16, 16, m_TexRes);
+        m_sShot[2].Create("redShot01", 0.0f, 0.0f, 0, 0, 16, 16, m_TexRes);
+        m_sShot[3].Create("redShot02", 0.0f, 0.0f, 0, 0, 16, 16, m_TexRes);
         m_sMap[0].Create("black", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        m_sMap[1].Create("ladder01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        m_sMap[2].Create("grassblock", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        m_sMap[3].Create("greenblock", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        m_sMap[4].Create("bird01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        m_sMap[5].Create("redbrick01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        m_sEnemy[0].Create("neko03", 0.0f, 0.0f, 0, 0, 16, 16, m_TexRes);
-        m_sEnemy[1].Create("neko04", 0.0f, 0.0f, 0, 0, 16, 16, m_TexRes);
-        m_sEnemy[2].Create("neko01", 0.0f, 0.0f, 0, 0, 16, 16, m_TexRes);
-        m_sEnemy[3].Create("neko02", 0.0f, 0.0f, 0, 0, 16, 16, m_TexRes);
-        m_sEnemy[4].Create("babyduck03", 0.0f, 0.0f, 0, 0, 16, 16, m_TexRes);
-        m_sEnemy[5].Create("babyduck04", 0.0f, 0.0f, 0, 0, 16, 16, m_TexRes);
-        m_sEnemy[6].Create("babyduck01", 0.0f, 0.0f, 0, 0, 16, 16, m_TexRes);
-        m_sEnemy[7].Create("babyduck02", 0.0f, 0.0f, 0, 0, 16, 16, m_TexRes);
+        m_sMap[1].Create("wall0201", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sMap[2].Create("wall0501", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sMap[3].Create("wall0501", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sMap[4].Create("podr02", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sMap[5].Create("wall0302", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sEnemy[0].Create("ax01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sEnemy[1].Create("ax02", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sEnemy[2].Create("ax01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sEnemy[3].Create("ax02", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sEnemy[4].Create("ax01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sEnemy[5].Create("ax02", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sEnemy[6].Create("ax01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sEnemy[7].Create("ax02", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
         m_sSmallBaloon[0].Create("baloon01", 0.0f, 0.0f, 0, 0, 16,16, m_TexRes);
         m_sSmallBaloon[1].Create("baloon02", 0.0f, 0.0f, 0, 0, 16,16, m_TexRes);
         m_sSmallBaloon[2].Create("baloon03", 0.0f, 0.0f, 0, 0, 16,16, m_TexRes);
         m_sSmallBaloon[3].Create("baloon04", 0.0f, 0.0f, 0, 0, 16,16, m_TexRes);
         //星
-        sStar[0].Create("get01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        sStar[1].Create("get02", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        sStar[2].Create("get03", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        sStar[3].Create("get04", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        sStar[4].Create("get05", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        sStar[5].Create("get06", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        sStar[6].Create("get07", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        sStar[0].Create("bang01", 0.0f, 0.0f, 0, 0, 96, 96, m_TexRes);
+        sStar[1].Create("bang02", 0.0f, 0.0f, 0, 0, 96, 96, m_TexRes);
+        sStar[2].Create("bang03", 0.0f, 0.0f, 0, 0, 96, 96, m_TexRes);
+        sStar[3].Create("bang04", 0.0f, 0.0f, 0, 0, 96, 96, m_TexRes);
+        sStar[4].Create("bang05", 0.0f, 0.0f, 0, 0, 96, 96, m_TexRes);
+        sStar[5].Create("bang06", 0.0f, 0.0f, 0, 0, 96, 96, m_TexRes);
+        sStar[6].Create("bang07", 0.0f, 0.0f, 0, 0, 96, 96, m_TexRes);
         //鳥
-        m_sBird[0].Create("bird03", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        m_sBird[1].Create("bird04", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        m_sBird[2].Create("bird01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        m_sBird[3].Create("bird02", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sBird[0].Create("podl0301", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sBird[1].Create("podl0302", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sBird[2].Create("podr0301", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        m_sBird[3].Create("podr0302", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
         //たま
-        sTama[0].Create("tama01", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        sTama[1].Create("tama02", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        sTama[2].Create("tama03", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        sTama[3].Create("tama04", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        sTama[4].Create("tama05", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
-        sTama[5].Create("tama06", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        sTama[0].Create("podl0301", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        sTama[1].Create("podl0302", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        sTama[2].Create("podr0301", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        sTama[3].Create("podr0302", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        sTama[4].Create("podl0301", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
+        sTama[5].Create("podl0302", 0.0f, 0.0f, 0, 0, 32, 32, m_TexRes);
         //
         m_sBg[0].Create("bg_ending", 0.0f, 0.0f, 0, 0, 320, 480, m_TexRes);
         m_sBg[1].Create("bg_ending", 0.0f, 0.0f, 0, 0, 320, 480, m_TexRes);
-        m_sBaloon.Create("bigbaloon", 0.0f, 0.0f, 0, 0, 200, 200, m_TexRes);
+        m_sBaloon.Create("boss00", 0.0f, 0.0f, 0, 0, 200, 200, m_TexRes);
         m_sRibbon[0].Create("baloonribbon01", 0.0f, 0.0f, 0, 0, 200, 96, m_TexRes);
         m_sRibbon[1].Create("baloonribbon02", 0.0f, 0.0f, 0, 0, 200, 96, m_TexRes);
         m_sCloud[0].Create("cloud01", 0.0f, 0.0f, 0, 0, 120, 60, m_TexRes);

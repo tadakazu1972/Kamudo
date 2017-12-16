@@ -6,76 +6,55 @@ package tadakazu1972.kamudo;
 
 public class Shot {
     public float x, y;
-    public float wx, wy;
     public float vx, vy;
     public float l, r, t, b;
     public int base_index; //アニメーション基底 0:右向き 2:左向き
     public int index;
     public int visible;
-    public int MAXX=9;  //マップ配列Xの最大値
-    public int MAXY=14; //マップ配列Yの最大値
 
-    public Shot(MyChara m) {
+    public Shot(MyChara m, float _vx) {
         x = m.x +  7.0f; //最初の剣はこの位置
         y = m.y + 11.0f;
-        wx = m.wx +  7.0f;
-        wy = m.wy + 11.0f;
-        vx =  0.0f;
-        vy = -6.0f;
-        l = wx;
-        r = wx + 15.0f; //最初の剣の当たり判定
-        t = wy;
-        b = wy + 15.0f;
+        vx =  _vx;
+        vy = -10.0f;
+        l = x;
+        r = x + 15.0f; //最初の剣の当たり判定
+        t = y;
+        b = y + 15.0f;
         base_index=0;
         index = 0;
         visible = 0;
     }
 
-    public void Reset(MyChara m) {
+    public void Reset(MyChara m, float _vx) {
         x = m.x +  7.0f;
         y = m.y + 11.0f;
-        wx = m.wx +  7.0f;
-        wy = m.wy + 11.0f;
-        vx =  0.0f;
-        vy = -6.0f;
-        l = wx;
-        r = wx + 15.0f;
-        t = wy;
-        b = wy + 15.0f;
+        vx =  _vx;
+        vy = -10.0f;
+        l = x;
+        r = x + 15.0f;
+        t = y;
+        b = y + 15.0f;
         base_index=0;
         index = 0;
         visible = 0; //ステージ数で増えるときには見えるようにセット
     }
 
-    public void move(MyChara m, MainActivity ac, Map map) {
+    public void move(MyChara m) {
         //発射されていたら飛んでいく
         if (visible!=0) {
-            //当たり判定用マップ座標算出
-            int x1 = (int) (wx + vx) / 32; if (x1 < 0) x1 = 0; if (x1 > MAXX) x1 = MAXX;
-            int y1 = (int) (wy + vy) / 32; if (y1 < 0) y1 = 0; if (y1 > MAXY) y1 = MAXY;
-            int x2 = (int) (wx + 15.0f + vx) / 32; if (x2 > MAXX) x2 = MAXX; if (x2 < 0) x2 = 0;
-            int y2 = (int) (wy + 15.0f + vy) / 32; if (y2 > MAXY) y2 = MAXY; if (y2 < 0) y2 = 0;
-            //カベ判定
-            if (map.MAP[y1][x1] > 1 || map.MAP[y1][x2] > 1) {
-                vx = 0.0f;
-                vy = -6.0f;
-                Reset(m);
-            }
-            //ワールド座標更新
-            wx = wx + vx;
-            if (wx < -32.0f) Reset(m);
-            if (wx > MAXX * 32.0f) Reset(m);
-            wy = wy + vy;
-            if (wy < -32.0f) Reset(m);
-            if (wy > MAXY * 32.0f) Reset(m);
-            //ワールド当たり判定移動
-            l = wx + vx;
-            r = wx + 15.0f + vx;
-            t = wy + vy;
-            b = wy + 15.0f + vy;
-            //座標更新
+            //画面はみ出しチェック
             x = x + vx;
+            if (x < -32.0f) Reset(m, vx);
+            if (x > 352.0f) Reset(m, vx);
             y = y + vy;
+            if (y < -32.0f) Reset(m, vx);
+            if (y > 512.0f) Reset(m, vx);
+            //当たり判定移動
+            l = x + vx;
+            r = x + 15.0f + vx;
+            t = y + vy;
+            b = y + 15.0f + vy;
             //アニメーションインデックス変更処理
             index++;
             if (index > 19) index = 0;
@@ -83,8 +62,6 @@ public class Shot {
             //発射されていないなら、主人公の動きと合わせる
             x = m.x +  7.0f;
             y = m.y + 11.0f;
-            wx = m.wx +  7.0f;
-            wy = m.wy + 11.0f;
         }
     }
 }
